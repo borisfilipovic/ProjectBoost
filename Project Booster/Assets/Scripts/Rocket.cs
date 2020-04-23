@@ -9,6 +9,8 @@ public class Rocket : MonoBehaviour {
     AudioSource audioSource;
 
     // Public.
+	[SerializeField] float mainTrust = 10.0f; // Main trust variable.
+	[SerializeField] float rcsTrust = 10.0f; // Left right rotation trust variable.
 
 	// Use this for initialization
 	void Start () {
@@ -21,16 +23,39 @@ public class Rocket : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        ProcessInput();
+        Trust();
+        Rotate();        
 	}
 
-    // Handle user imputs.
-    private void ProcessInput()
+    // Rocket rotation.
+    private void Rotate()
     {
-        // Check if boost button was pressed.
-        if (Input.GetKey(KeyCode.Space))
+        // Take manual control of rotation. Freeze rotation.
+        rigidBody.freezeRotation = true;
+
+		// Trust rcs.
+		float rotationThisFrame = rcsTrust * Time.deltaTime;
+
+        // Check if left or right button was pressed.
+        if (Input.GetKey(KeyCode.A))
         {
-            rigidBody.AddRelativeForce(Vector3.up);
+			transform.Rotate(Vector3.forward * rotationThisFrame);
+        }
+        else if(Input.GetKey(KeyCode.D)) 
+        {
+			transform.Rotate(-Vector3.forward * rotationThisFrame);
+        }
+
+        // Take manual control of rotation. Un-Freeze rotation. Resume physics controll of rotation.
+        rigidBody.freezeRotation = false;
+    }
+
+    // Rocket trust.
+    private void Trust() {
+        // Check if boost button was pressed.
+		if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W))
+        {
+			rigidBody.AddRelativeForce(Vector3.up * mainTrust);
 
             // Start audio when trust is engaged.
             if (!audioSource.isPlaying) {
@@ -41,17 +66,17 @@ public class Rocket : MonoBehaviour {
             // Stop audio when trust is stoped.
             audioSource.Stop();
         }
-
-        // Check if left or right button was pressed.
-        if (Input.GetKey(KeyCode.A))
-        {
-            print("Rotating left");
-            transform.Rotate(Vector3.forward);
-        }
-        else if(Input.GetKey(KeyCode.D)) 
-        {
-            print("Rotating right");
-            transform.Rotate(-Vector3.forward);
-        }
     }
+
+	// Player collided with world object.
+	void OnCollisionEnter(Collision collision) {
+		switch (collision.gameObject.tag) {
+		case Constants.FRIENDLY_TAG:
+			print ("Friendly collision");
+			break;
+		default:
+			print ("Dead");
+			break;
+		}
+	}
 }
