@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Rocket : MonoBehaviour {
 
     // Private.
     Rigidbody rigidBody;
     AudioSource audioSource;
+	GameState state = GameState.Alive;
 
     // Public.
 	[SerializeField] float mainTrust = 10.0f; // Main trust variable.
@@ -19,10 +21,17 @@ public class Rocket : MonoBehaviour {
 
         // Find audiosource.
         audioSource = GetComponent<AudioSource>();
+
+		// Reset game state.
+		state = GameState.Alive;
     }
 	
 	// Update is called once per frame
 	void Update () {
+		// Prevent player controlling rocket when he died or is loading new level.
+		if (state != GameState.Alive) {
+			return;
+		}
         Trust();
         Rotate();        
 	}
@@ -70,13 +79,36 @@ public class Rocket : MonoBehaviour {
 
 	// Player collided with world object.
 	void OnCollisionEnter(Collision collision) {
+		// Prevent player controlling rocket when he died or is loading new level.
+		if (state != GameState.Alive) {
+			return;
+		}
 		switch (collision.gameObject.tag) {
 		case Constants.FRIENDLY_TAG:
 			print ("Friendly collision");
 			break;
+		case Constants.FINISH_TAG:
+			state = GameState.Transcending;
+			audioSource.Stop();
+			Invoke ("LoadNextScene", 1.5f);
+			break;
 		default:
-			print ("Dead");
+			state = GameState.Dying;
+			audioSource.Stop();
+			Invoke ("LoadNextScene", 1.5f);
 			break;
 		}
 	}
+
+	// Load next scene.
+	private void LoadNextScene() {
+		switch (state) {
+		case GameState.Transcending:
+			SceneManager.LoadScene (1);
+			break;
+		case GameState.Dying:
+			SceneManager.LoadScene (0);
+			break;
+		}
+	}		
 }
