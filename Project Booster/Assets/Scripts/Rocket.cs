@@ -6,13 +6,19 @@ using UnityEngine.SceneManagement;
 public class Rocket : MonoBehaviour {
 
     // Private.
-    Rigidbody rigidBody;
-    AudioSource audioSource;
-	GameState state = GameState.Alive;
+    private Rigidbody rigidBody;
+    private AudioSource audioSource;
+	private GameState state = GameState.Alive;
 
     // Public.
 	[SerializeField] float mainTrust = 10.0f; // Main trust variable.
 	[SerializeField] float rcsTrust = 10.0f; // Left right rotation trust variable.
+	[SerializeField] AudioClip mainEngine; // Main engine sound.
+	[SerializeField] AudioClip success; // Player finished level sound.
+	[SerializeField] AudioClip death; // Player lost sound.
+	[SerializeField] ParticleSystem mainEngineParticles;
+	[SerializeField] ParticleSystem successParticles;
+	[SerializeField] ParticleSystem deathParticles;
 
 	// Use this for initialization
 	void Start () {
@@ -32,12 +38,12 @@ public class Rocket : MonoBehaviour {
 		if (state != GameState.Alive) {
 			return;
 		}
-        Trust();
-        Rotate();        
+        RespondToThrustInput();
+        RespondToRotateInput();        
 	}
 
     // Rocket rotation.
-    private void Rotate()
+    private void RespondToRotateInput()
     {
         // Take manual control of rotation. Freeze rotation.
         rigidBody.freezeRotation = true;
@@ -60,23 +66,34 @@ public class Rocket : MonoBehaviour {
     }
 
     // Rocket trust.
-    private void Trust() {
+    private void RespondToThrustInput() {
         // Check if boost button was pressed.
-		if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W))
-        {
-			rigidBody.AddRelativeForce(Vector3.up * mainTrust);
-
-            // Start audio when trust is engaged.
-            if (!audioSource.isPlaying) {
-                audioSource.Play();
-            }
-        }
-        else {
-            // Stop audio when trust is stoped.
-            audioSource.Stop();
-        }
+		bool playRocketEngineAudioSource = false;
+		if (Input.GetKey (KeyCode.Space) || Input.GetKey (KeyCode.W)) {
+			ApplyThrust ();
+			playRocketEngineAudioSource = true;
+		}
+		RocketEngine (playRocketEngineAudioSource);
+		MainEngineParticles (playRocketEngineAudioSource);
     }
 
+	// Main engine particle.
+	private void MainEngineParticles(bool play) {
+		switch (play) {
+		case true:
+			mainEngineParticles.Play (); // Play engine particles.
+			break;
+		case false:
+			mainEngineParticles.Stop (); // Stop engine particles.
+			break;
+		}
+	}
+
+	// Apply thrust to rocket.
+	private void ApplyThrust() {
+		rigidBody.AddRelativeForce(Vector3.up * mainTrust);
+	}
+		
 	// Player collided with world object.
 	void OnCollisionEnter(Collision collision) {
 		// Prevent player controlling rocket when he died or is loading new level.
@@ -85,19 +102,57 @@ public class Rocket : MonoBehaviour {
 		}
 		switch (collision.gameObject.tag) {
 		case Constants.FRIENDLY_TAG:
-			print ("Friendly collision");
+			// Do nothing.
 			break;
 		case Constants.FINISH_TAG:
-			state = GameState.Transcending;
-			audioSource.Stop();
-			Invoke ("LoadNextScene", 1.5f);
+			StartSuccessSequence ();
 			break;
 		default:
-			state = GameState.Dying;
-			audioSource.Stop();
-			Invoke ("LoadNextScene", 1.5f);
+			StartDeathSequence ();
 			break;
 		}
+	}
+
+	// Start success sequence.
+	private void StartSuccessSequence() {
+		state = GameState.Transcending;
+		RocketEngine (false);
+		PlayAudio (success);
+		successParticles.Play ();
+		MainEngineParticles (false); // Stop engine particles.
+		Invoke ("LoadNextScene", 1.5f);
+	}
+
+	// Start death sequence.
+	private void StartDeathSequence() {
+		state = GameState.Dying;
+		RocketEngine (false);
+		PlayAudio (death);
+		deathParticles.Play ();
+		MainEngineParticles (false); // Stop engine particles.
+		Invoke ("LoadNextScene", 1.5f);
+	}
+
+	// Handle audio.
+	private void RocketEngine(bool isPlaying) {
+		switch (isPlaying) {
+		case true:
+			// Start audio when trust is engaged.
+			if (!audioSource.isPlaying) {
+				PlayAudio (mainEngine);
+			}
+			break;
+		case false:
+			// Stop audio when trust is stoped.
+			audioSource.Stop ();
+			break;
+		}
+	}
+
+	// Play Audio one shot.
+	private void PlayAudio(AudioClip clip) {
+		audioSource.Stop (); // Stop previously played sound.
+		audioSource.PlayOneShot (clip); // Play new audio clip.
 	}
 
 	// Load next scene.

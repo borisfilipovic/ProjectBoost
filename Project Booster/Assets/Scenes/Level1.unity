@@ -43,7 +43,7 @@ RenderSettings:
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 11
-  m_GIWorkflowMode: 0
+  m_GIWorkflowMode: 1
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -89,7 +89,8 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
     m_ShowResolutionOverlay: 1
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000002, guid: e28055e4d8fd2a24e9125725e8a8c8eb,
+    type: 2}
   m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
@@ -249,7 +250,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4846687271762012, guid: 0b542071c0e10454d8197b0eac264965, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 7.99
+      value: 5.62
       objectReference: {fileID: 0}
     - target: {fileID: 4846687271762012, guid: 0b542071c0e10454d8197b0eac264965, type: 2}
       propertyPath: m_LocalPosition.z
@@ -320,7 +321,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4846687271762012, guid: 0b542071c0e10454d8197b0eac264965, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 3.46
+      value: 2.34
       objectReference: {fileID: 0}
     - target: {fileID: 4846687271762012, guid: 0b542071c0e10454d8197b0eac264965, type: 2}
       propertyPath: m_LocalPosition.z
@@ -649,6 +650,10 @@ Prefab:
     - target: {fileID: 4608307372222212, guid: 7d1b81c08c0d155468cfdf52d337770a, type: 2}
       propertyPath: m_RootOrder
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4432540628739630, guid: 7d1b81c08c0d155468cfdf52d337770a, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: -2.37
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7d1b81c08c0d155468cfdf52d337770a, type: 2}
