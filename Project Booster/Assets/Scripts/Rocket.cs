@@ -25,7 +25,7 @@ public class Rocket : MonoBehaviour {
 	void Start () {
         // Find ships rigidbody reference.
         rigidBody = GetComponent<Rigidbody>();
-
+       
         // Find audiosource.
         audioSource = GetComponent<AudioSource>();
 
@@ -160,7 +160,12 @@ public class Rocket : MonoBehaviour {
 	private void LoadNextScene() {
 		switch (state) {
 		case GameState.Transcending:
-			SceneManager.LoadScene (1);
+			int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+			int nextSceneIndex = currentSceneIndex + 1;
+			if (nextSceneIndex == SceneManager.sceneCountInBuildSettings) {
+				nextSceneIndex = 0; // Loop back to first scene.
+			}
+			SceneManager.LoadScene (nextSceneIndex);
 			break;
 		case GameState.Dying:
 			SceneManager.LoadScene (0);
