@@ -13,6 +13,7 @@ public class Rocket : MonoBehaviour {
     // Public.
 	[SerializeField] float mainTrust = 10.0f; // Main trust variable.
 	[SerializeField] float rcsTrust = 10.0f; // Left right rotation trust variable.
+	[SerializeField] float levelLoadDelay = 2.0f;
 	[SerializeField] AudioClip mainEngine; // Main engine sound.
 	[SerializeField] AudioClip success; // Player finished level sound.
 	[SerializeField] AudioClip death; // Player lost sound.
@@ -91,7 +92,7 @@ public class Rocket : MonoBehaviour {
 
 	// Apply thrust to rocket.
 	private void ApplyThrust() {
-		rigidBody.AddRelativeForce(Vector3.up * mainTrust);
+		rigidBody.AddRelativeForce(Vector3.up * mainTrust * Time.deltaTime);
 	}
 		
 	// Player collided with world object.
@@ -120,7 +121,7 @@ public class Rocket : MonoBehaviour {
 		PlayAudio (success);
 		successParticles.Play ();
 		MainEngineParticles (false); // Stop engine particles.
-		Invoke ("LoadNextScene", 1.5f);
+		Invoke ("LoadNextScene", levelLoadDelay);
 	}
 
 	// Start death sequence.
@@ -130,7 +131,7 @@ public class Rocket : MonoBehaviour {
 		PlayAudio (death);
 		deathParticles.Play ();
 		MainEngineParticles (false); // Stop engine particles.
-		Invoke ("LoadNextScene", 1.5f);
+		Invoke ("LoadNextScene", levelLoadDelay);
 	}
 
 	// Handle audio.
